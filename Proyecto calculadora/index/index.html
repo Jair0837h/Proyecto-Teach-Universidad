@@ -3,246 +3,96 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Calculadora de Energía con Gráfica</title>
+<title>Dashboard Energía Renovable</title>
+
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f9fafb;
-    margin: 0; padding: 20px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .container {
-    background: white;
-    max-width: 480px;
-    width: 100%;
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  }
-
-  h1 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #222;
-  }
-
-  label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 6px;
-    color: #444;
-  }
-
-  input[type=number] {
-    width: 100%;
-    padding: 10px 14px;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1.5px solid #ccc;
-    margin-bottom: 18px;
-    transition: border-color 0.3s;
-  }
-
-  input[type=number]:focus {
-    border-color: #2563eb;
-    outline: none;
-  }
-
-  button {
-    width: 100%;
-    padding: 14px;
-    background-color: #2563eb;
-    border: none;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.25s;
-  }
-
-  button:hover {
-    background-color: #1e40af;
-  }
-
-  .error {
-    color: #dc2626;
-    font-weight: 600;
-    margin-top: -14px;
-    margin-bottom: 14px;
-    font-size: 0.9rem;
-  }
-
-  .result {
-    text-align: center;
-    margin-top: 25px;
-    font-size: 1.15rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
-
-  #chartContainer {
-    margin-top: 30px;
-  }
-
-  canvas {
-    width: 100% !important;
-    height: 260px !important;
-  }
-</style>
+<!-- Estilos -->
+<link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
 
-<div class="container">
-  <h1>Calculadora de Energía Eléctrica</h1>
-  <form id="energyForm" novalidate>
-    <label for="potencia">Potencia (W)</label>
-    <input type="number" id="potencia" min="0" step="any" placeholder="Ejemplo: 1500" required />
-    <div id="errorPotencia" class="error" style="display:none;"></div>
+<header>Portal Energía Renovable</header>
 
-    <label for="tiempo">Tiempo de uso (horas)</label>
-    <input type="number" id="tiempo" min="0" step="any" placeholder="Ejemplo: 3.5" required />
-    <div id="errorTiempo" class="error" style="display:none;"></div>
+<nav>
+  <button class="active" data-target="info">Información</button>
+  <button data-target="tabla">Datos Históricos</button>
+  <button data-target="estimacion">Estimación % Renovable</button>
+  <button data-target="dashboard">Dashboard</button>
+</nav>
 
-    <button type="submit">Calcular</button>
-  </form>
+<main>
 
-  <div id="resultados" class="result" style="display:none;">
-    Consumo: <span id="kwhResult">0</span> kWh<br />
-    Costo estimado: <span id="costoResult">0</span> COP
-  </div>
+  <!-- Sección 1: Información de fuente limpia -->
+  <section id="info" class="active solar-info" aria-label="Información sobre energía solar">
+    <h2>Energía Solar</h2>
+    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" alt="Paneles solares bajo el sol" />
+    <p>
+      La energía solar es una fuente de energía limpia y renovable que se obtiene a partir de la radiación del sol. Los paneles solares convierten esta radiación en electricidad, reduciendo la dependencia de combustibles fósiles y disminuyendo la contaminación ambiental. Es una tecnología accesible y cada vez más eficiente que puede implementarse tanto a nivel residencial como industrial.
+    </p>
+  </section>
 
-  <div id="chartContainer">
-    <canvas id="energyChart"></canvas>
-  </div>
-</div>
+  <!-- Sección 2: Visualización tabular de dataset -->
+  <section id="tabla" aria-label="Datos históricos de energía renovable">
+    <h2>Datos Históricos de Energía Renovable (Ejemplo 1965-2022)</h2>
+    <p>A continuación, una tabla simplificada con algunos datos clave por año.</p>
+    <table id="tablaDatos">
+      <thead>
+        <tr>
+          <th>Año</th>
+          <th>Producción eólica (GWh)</th>
+          <th>Producción solar (GWh)</th>
+          <th>Producción hidroeléctrica (GWh)</th>
+          <th>Producción biofuel (GWh)</th>
+          <th>Capacidad geotérmica instalada (MW)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Datos llenados con JS -->
+      </tbody>
+    </table>
+  </section>
 
-<script>
-  const PRECIO_KWH = 600; // COP por kWh
+  <!-- Sección 3: Formulario estimación porcentaje energía renovable -->
+  <section id="estimacion" aria-label="Formulario para estimar porcentaje de energía renovable">
+    <h2>Estime el Porcentaje de Energía Renovable en su Consumo</h2>
+    <form id="formEstimacion" novalidate>
+      <label for="consumoTotal">Consumo Eléctrico Total (kWh)</label>
+      <input type="number" id="consumoTotal" min="0" step="any" placeholder="Ejemplo: 5000" required />
+      <div id="errorConsumo" class="error" style="display:none;"></div>
+      <button type="submit">Calcular</button>
+    </form>
+    <div id="resultadoEstimacion" class="result-estimacion" style="display:none;"></div>
+  </section>
 
-  const form = document.getElementById('energyForm');
-  const potenciaInput = document.getElementById('potencia');
-  const tiempoInput = document.getElementById('tiempo');
+  <!-- Sección 4: Dashboard gráficos -->
+  <section id="dashboard" aria-label="Dashboard de energía renovable">
+    <h2>Dashboard de Producción y Consumo de Energía Renovable</h2>
+    <div class="charts-grid">
+      <div>
+        <h3>Producción por Fuente (GWh)</h3>
+        <canvas id="graficoBarras"></canvas>
+      </div>
+      <div>
+        <h3>Participación en Consumo (%)</h3>
+        <canvas id="graficoTorta"></canvas>
+      </div>
+      <div>
+        <h3>Tendencia Capacidad Instalada (GW)</h3>
+        <canvas id="graficoLineas"></canvas>
+      </div>
+      <div>
+        <h3>Consumo Renovable vs Convencional (GWh)</h3>
+        <canvas id="graficoArea"></canvas>
+      </div>
+    </div>
+  </section>
 
-  const errorPotencia = document.getElementById('errorPotencia');
-  const errorTiempo = document.getElementById('errorTiempo');
+</main>
 
-  const resultadosDiv = document.getElementById('resultados');
-  const kwhResult = document.getElementById('kwhResult');
-  const costoResult = document.getElementById('costoResult');
-
-  let chartInstance = null;
-
-  function validarCampo(valor, elementoError, nombreCampo) {
-    if (valor === '' || valor === null) {
-      elementoError.style.display = 'block';
-      elementoError.textContent = `${nombreCampo} es obligatorio`;
-      return false;
-    }
-    if (isNaN(valor) || Number(valor) <= 0) {
-      elementoError.style.display = 'block';
-      elementoError.textContent = `${nombreCampo} debe ser un número positivo`;
-      return false;
-    }
-    elementoError.style.display = 'none';
-    return true;
-  }
-
-  function crearGrafica(kwh, costo) {
-    const ctx = document.getElementById('energyChart').getContext('2d');
-
-    if (chartInstance) {
-      chartInstance.destroy();
-    }
-
-    chartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Consumo (kWh)', 'Costo (COP)'],
-        datasets: [{
-          label: 'Valores',
-          data: [kwh, costo],
-          backgroundColor: ['#22c55e', '#3b82f6'], // verde y azul
-          borderRadius: 6,
-          barPercentage: 0.5,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              // Mostrar formato para COP y para kWh (simple)
-              callback: function(value, index, ticks) {
-                if(index === 1) return value.toLocaleString('es-CO') + ' COP';
-                return value.toFixed(2);
-              }
-            },
-            title: {
-              display: true,
-              text: 'Valor'
-            }
-          },
-          x: {
-            title: {
-              display: true,
-              text: 'Concepto'
-            }
-          }
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                if (context.dataIndex === 1) {
-                  return context.parsed.y.toLocaleString('es-CO') + ' COP';
-                }
-                return context.parsed.y.toFixed(2) + ' kWh';
-              }
-            }
-          }
-        }
-      }
-    });
-  }
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-
-    const potencia = potenciaInput.value.trim();
-    const tiempo = tiempoInput.value.trim();
-
-    const validoPotencia = validarCampo(potencia, errorPotencia, 'Potencia');
-    const validoTiempo = validarCampo(tiempo, errorTiempo, 'Tiempo');
-
-    if (!validoPotencia || !validoTiempo) {
-      resultadosDiv.style.display = 'none';
-      return;
-    }
-
-    const p = parseFloat(potencia);
-    const t = parseFloat(tiempo);
-
-    const energiaWh = p * t;
-    const energiaKwh = energiaWh / 1000;
-
-    const costo = energiaKwh * PRECIO_KWH;
-
-    kwhResult.textContent = energiaKwh.toFixed(3);
-    costoResult.textContent = costo.toLocaleString('es-CO', {minimumFractionDigits: 0});
-
-    resultadosDiv.style.display = 'block';
-
-    crearGrafica(energiaKwh, costo);
-  });
-</script>
+<!-- Script JS -->
+<script src="js/app.js"></script>
 
 </body>
 </html>
