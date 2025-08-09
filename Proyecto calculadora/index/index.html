@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Calculadora de Energía con Gráfica</title>
-  <link rel="stylesheet" href="css/estilos.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculadora de Energía</title>
+    <link rel="stylesheet" href="css/estilos.css" />
+    <!-- Librería Chart.js para las gráficas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div class="container">
+        <h1>Calculadora de Energía</h1>
+        <form id="energiaForm">
+            <label for="potencia">Potencia (W):</label>
+            <input type="number" id="potencia" required min="0" step="any" />
 
-  <div class="calculator">
-    <h2>Calculadora de Energía</h2>
-    <label for="potencia">Potencia (Watts - W):</label>
-    <input type="number" id="potencia" placeholder="Ej: 100" min="0" step="any" />
+            <label for="tiempo">Tiempo (horas):</label>
+            <input type="number" id="tiempo" required min="0" step="any" />
 
-    <label for="tiempo">Tiempo (Horas - h):</label>
-    <input type="number" id="tiempo" placeholder="Ej: 2" min="0" step="any" />
+            <button type="submit">Calcular Energía (Wh)</button>
+        </form>
 
-    <button id="btnCalcular">Calcular Energía</button>
+        <div id="resultado">
+            <h2>Resultado: <span id="energiaValor">0</span> Wh</h2>
+        </div>
 
-    <div class="result" id="resultado"></div>
-  </div>
+        <canvas id="graficaEnergia" width="400" height="200"></canvas>
+    </div>
 
-  <div class="chart-container">
-    <canvas id="energiaChart"></canvas>
-  </div>
-
-  <!-- Chart.js desde CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
