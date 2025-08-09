@@ -43,13 +43,16 @@ nav button:hover, nav button.active {
 }
 
 main {
-  max-width: 900px;
+  max-width: 50%, 50%;
   margin: 25px auto;
   background: white;
   padding: 25px 30px;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgb(0 0 0 / 0.08);
+  display: flex;
+
 }
+
 
 section {
   display: none;
