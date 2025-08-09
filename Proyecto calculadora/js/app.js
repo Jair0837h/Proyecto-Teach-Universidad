@@ -1,19 +1,43 @@
-// Navegación simple entre secciones
+// =======================
+// Navegación y Dashboard
+// =======================
+
 const buttonsNav = document.querySelectorAll('nav button');
 const sections = document.querySelectorAll('main section');
 
 buttonsNav.forEach(btn => {
   btn.addEventListener('click', () => {
+    // Quitar clase activa a todos los botones y agregar al actual
     buttonsNav.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+
+    // Mostrar solo la sección correspondiente
     const target = btn.getAttribute('data-target');
     sections.forEach(sec => {
       sec.classList.toggle('active', sec.id === target);
     });
+
+    // Si vamos al dashboard, recargar gráficos
+    if (target === 'dashboard') {
+      requestAnimationFrame(() => {
+        inicializarDashboard();
+      });
+    }
   });
 });
 
-// Datos simulados históricos para tabla y gráficos (simplificado)
+// Si el dashboard es la pestaña activa al cargar, inicializarlo
+const btnActivo = document.querySelector('nav button.active');
+if (btnActivo && btnActivo.getAttribute('data-target') === 'dashboard') {
+  requestAnimationFrame(() => {
+    inicializarDashboard();
+  });
+}
+
+// =======================
+// Datos simulados
+// =======================
+
 const datosHistoricos = [
   {year:1965, wind:10, solar:0.1, hydro:100, biofuel:5, geothermal:20},
   {year:1975, wind:20, solar:0.5, hydro:120, biofuel:10, geothermal:25},
@@ -24,7 +48,10 @@ const datosHistoricos = [
   {year:2022, wind:1400, solar:1000, hydro:240, biofuel:250, geothermal:80}
 ];
 
-// Llenar tabla con datos históricos
+// =======================
+// Llenar tabla
+// =======================
+
 const tbodyTabla = document.querySelector('#tablaDatos tbody');
 datosHistoricos.forEach(d => {
   const tr = document.createElement('tr');
@@ -39,7 +66,10 @@ datosHistoricos.forEach(d => {
   tbodyTabla.appendChild(tr);
 });
 
+// =======================
 // Formulario Estimación
+// =======================
+
 const formEstimacion = document.getElementById('formEstimacion');
 const consumoInput = document.getElementById('consumoTotal');
 const errorConsumo = document.getElementById('errorConsumo');
@@ -51,7 +81,6 @@ function validarNumeroPositivo(valor) {
   return !isNaN(n) && n > 0;
 }
 
-// Para estimar capacidad instalada y proporción renovable:
 formEstimacion.addEventListener('submit', e => {
   e.preventDefault();
   const consumo = consumoInput.value.trim();
@@ -65,26 +94,13 @@ formEstimacion.addEventListener('submit', e => {
   errorConsumo.style.display = 'none';
 
   const consumoNum = Number(consumo);
-
-  // Último dato año 2022
   const ultimo = datosHistoricos[datosHistoricos.length - 1];
 
-  // Capacidad instalada (sumamos MW convertido a GW para homogeneizar):
   const capacidadGW = (ultimo.wind / 1000) + (ultimo.solar / 1000) + (ultimo.hydro / 1000) + (ultimo.geothermal / 1000);
-
-  // Producción total renovable estimada (sumamos las fuentes renovables)
   const produccionRenovable = ultimo.wind + ultimo.solar + ultimo.hydro + ultimo.biofuel + ultimo.geothermal;
-
-  // Simplificamos producción total (renovable + no renovable)
   const produccionTotal = produccionRenovable * 1.5;
-
-  // Proporción renovable en producción total
   const proporcionRenovable = produccionRenovable / produccionTotal;
-
-  // Estimación consumo renovable usuario (en kWh)
   const consumoRenovable = consumoNum * proporcionRenovable;
-
-  // % renovable en consumo total
   const porcentajeRenovable = proporcionRenovable * 100;
 
   resultadoEstimacion.style.display = 'block';
@@ -96,15 +112,14 @@ formEstimacion.addEventListener('submit', e => {
   `;
 });
 
-// ----------- GRÁFICOS DASHBOARD -------------
+// =======================
+// Gráficos
+// =======================
 
 let graficoBarras, graficoTorta, graficoLineas, graficoArea;
 
-// Datos para gráficos del último año
-const ultimo = datosHistoricos[datosHistoricos.length - 1];
-
-// Gráfico Barras: Producción por Fuente
 function crearGraficoBarras() {
+  const ultimo = datosHistoricos[datosHistoricos.length - 1];
   const ctx = document.getElementById('graficoBarras').getContext('2d');
   if (graficoBarras) graficoBarras.destroy();
 
@@ -123,28 +138,18 @@ function crearGraficoBarras() {
     options: {
       responsive: true,
       scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'GWh' }
-        },
-        x: {
-          title: { display: true, text: 'Fuente' }
-        }
+        y: { beginAtZero: true, title: { display: true, text: 'GWh' } },
+        x: { title: { display: true, text: 'Fuente' } }
       },
-      plugins: {
-        legend: { display: false },
-        tooltip: { enabled: true }
-      }
+      plugins: { legend: { display: false } }
     }
   });
 }
 
-// Gráfico Torta: Participación en consumo
 function crearGraficoTorta() {
   const ctx = document.getElementById('graficoTorta').getContext('2d');
   if (graficoTorta) graficoTorta.destroy();
 
-  // Datos simplificados (del último año)
   const dataParticipacion = [
     {label:'Renovable Total', value: 45},
     {label:'Eólica', value: 15},
@@ -163,22 +168,14 @@ function crearGraficoTorta() {
         hoverOffset: 15
       }]
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { enabled: true }
-      }
-    }
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 }
 
-// Gráfico Líneas: Tendencia capacidad instalada
 function crearGraficoLineas() {
   const ctx = document.getElementById('graficoLineas').getContext('2d');
   if (graficoLineas) graficoLineas.destroy();
 
-  // Mapear datos por años para capacidad instalada (GW)
   const labels = datosHistoricos.map(d => d.year);
   const windCapacity = datosHistoricos.map(d => d.wind / 1000);
   const solarCapacity = datosHistoricos.map(d => d.solar / 1000);
@@ -189,65 +186,21 @@ function crearGraficoLineas() {
     data: {
       labels: labels,
       datasets: [
-        {
-          label: 'Eólica (GW)',
-          data: windCapacity,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.3)',
-          fill: false,
-          tension: 0.3,
-          pointRadius: 4,
-        },
-        {
-          label: 'Solar (GW)',
-          data: solarCapacity,
-          borderColor: '#fbbf24',
-          backgroundColor: 'rgba(251, 191, 36, 0.3)',
-          fill: false,
-          tension: 0.3,
-          pointRadius: 4,
-        },
-        {
-          label: 'Geotérmica (GW)',
-          data: geothermalCapacity,
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139, 92, 246, 0.3)',
-          fill: false,
-          tension: 0.3,
-          pointRadius: 4,
-        }
+        { label: 'Eólica (GW)', data: windCapacity, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.3)', fill: false, tension: 0.3, pointRadius: 4 },
+        { label: 'Solar (GW)', data: solarCapacity, borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.3)', fill: false, tension: 0.3, pointRadius: 4 },
+        { label: 'Geotérmica (GW)', data: geothermalCapacity, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.3)', fill: false, tension: 0.3, pointRadius: 4 }
       ]
     },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Capacidad Instalada (GW)' }
-        },
-        x: {
-          title: { display: true, text: 'Año' }
-        }
-      },
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { enabled: true }
-      }
-    }
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 }
 
-// Gráfico Área: Consumo renovable vs convencional (simplificado)
 function crearGraficoArea() {
   const ctx = document.getElementById('graficoArea').getContext('2d');
   if (graficoArea) graficoArea.destroy();
 
-  // Consumo renovable y convencional (simulado)
-  // Renovable = wind + solar + hydro + biofuel + geothermal (GWh)
-  // Convencional = 1.5 veces renovable (simulación)
   const labels = datosHistoricos.map(d => d.year);
-  const consumoRenovable = datosHistoricos.map(d =>
-    d.wind + d.solar + d.hydro + d.biofuel + d.geothermal);
+  const consumoRenovable = datosHistoricos.map(d => d.wind + d.solar + d.hydro + d.biofuel + d.geothermal);
   const consumoConvencional = consumoRenovable.map(v => v * 1.5);
 
   graficoArea = new Chart(ctx, {
@@ -255,63 +208,20 @@ function crearGraficoArea() {
     data: {
       labels: labels,
       datasets: [
-        {
-          label: 'Consumo Renovable (GWh)',
-          data: consumoRenovable,
-          borderColor: '#22c55e',
-          backgroundColor: 'rgba(34, 197, 94, 0.5)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-        },
-        {
-          label: 'Consumo Convencional (GWh)',
-          data: consumoConvencional,
-          borderColor: '#ef4444',
-          backgroundColor: 'rgba(239, 68, 68, 0.5)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-        }
+        { label: 'Consumo Renovable (GWh)', data: consumoRenovable, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.5)', fill: true, tension: 0.3, pointRadius: 3 },
+        { label: 'Consumo Convencional (GWh)', data: consumoConvencional, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.5)', fill: true, tension: 0.3, pointRadius: 3 }
       ]
     },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Consumo (GWh)' }
-        },
-        x: {
-          title: { display: true, text: 'Año' }
-        }
-      },
-      plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { enabled: true }
-      }
-    }
+    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
   });
 }
 
-// Crear todos los gráficos al cargar la página y cuando se muestra el dashboard
+// =======================
+// Inicializar Dashboard
+// =======================
 function inicializarDashboard() {
   crearGraficoBarras();
   crearGraficoTorta();
   crearGraficoLineas();
   crearGraficoArea();
-}
-
-// Inicializamos dashboard cuando se activa la pestaña correspondiente
-buttonsNav.forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (btn.getAttribute('data-target') === 'dashboard') {
-      setTimeout(inicializarDashboard, 100); // pequeño delay para que canvas sea visible
-    }
-  });
-});
-
-// Inicializamos dashboard por defecto si está activo al cargar
-if(document.querySelector('nav button.active').getAttribute('data-target') === 'dashboard'){
-  inicializarDashboard();
 }
